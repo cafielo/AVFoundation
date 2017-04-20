@@ -48,13 +48,13 @@ AVFoundation 에  뭔놈의 클래스가 아따 엄청 많음
 이제 샅샅이 나누어서 차근차근 살펴보자 
 
 
-##### Audio Playback and Recording 
+#### Audio Playback and Recording
 
 그림 1.1에 보면 AVFoundation 사각형 우측에 조그맣게 Audio-only 클래스들이 있다. 
 AVFoundation 에 AVAudioPlayer, AVAudioRecorder등은 오디오 관련 작업을 쉽게 해주는 녀석이다
 
 
-##### Media Inspection 
+#### Media Inspection 
 
 AVFoundation 에서는 당신이 쓰고 있는 미디어의 타입에 대해서 확인 할수 잇는 기능을 가지고 잇다. 
 미디어의 속성들을 확인할수 있음
@@ -64,7 +64,7 @@ AVFoundation 에서는 당신이 쓰고 있는 미디어의 타입에 대해서 
 
 추가적으로 AVMetadataItem을 이용해서 메타 데이터 정보도 볼수 있음 
 
-##### Viedo Playback
+#### Viedo Playback
 
 AVFoundation 은 비디오 재생에 많이 쓰임
 - 로컬, 네트웍 비디오 모두 재생 및 컨트롤이 가능함 
@@ -72,18 +72,18 @@ AVFoundation 은 비디오 재생에 많이 쓰임
     - 심지어, 오디오, 비디오 두개를 각각 구분할수도 있음
 
 
-##### Media Capture
+#### Media Capture
 
 왠만한 애플 제품에는 빌트인 카메라가 있는데 동영상 및 이미지 캡쳐가 가능하다 
 AVFoundation은 다양한 api들을 제공해주고 있음
 - AVCaptureSession 이 허브가 될 클래스이다. 
 
-##### Media Editing 
+#### Media Editing 
 
 AVFoundation 은 미디어 구성과 편집에 강력한 기능들을 제공함 
 AVFoundation 은 미디어 클립의 편집, 오디오 파라미터 변경, 애니메이팅 타이틀 추가, 전환효과등을 줄수 있는 앱을 만들수 있게 해줌 (헐 진짜???)
 
-##### Media Processing 
+#### Media Processing 
 
 대부분의 작업은 비트와 바이트 접근하지 않고도 성취가 가능하나, 가끔은 비트와 바이트 단위로 접근해서 처리가 필요할때가 있다. 
 AVAssetReader, AVAssetWriter 가 미디어 프로세싱에 주요하게 필요한 클래스임
@@ -96,14 +96,14 @@ AVAssetReader, AVAssetWriter 가 미디어 프로세싱에 주요하게 필요�
 자연에서 우리가 접하는 아날로그 데이터들은 continuous한데 결국에는 디지털로 만들기 위해서는 0, 1로 바꾸어주어야함. 
 이를 위해서 우리가 먼저해야할 일이 샘플링 하기이다 
 
-##### Digital Media Sampling
+#### Digital Media Sampling
 
 샘플링 방법에는 크게 두가지가 있음
 - temporal 샘플링 : 시간기반(오디오 샘플링 기법)
 - spatial 샘플링 : 공간기반(이미지 쪽 샘플링 기법)
 - 비디오의 경우 두가지 샘플링 방법 모두 사용
 
-##### Understanding Audio Sampling
+#### Understanding Audio Sampling
 
 소리가 뭐냐!
 - 우리가 실제 듣는 소리라는 것은, 매개를 통해 전달되는 어떤 진동인것임 
@@ -151,7 +151,7 @@ AVAssetReader, AVAssetWriter 가 미디어 프로세싱에 주요하게 필요�
 
 디지털 미디어는 공간을 어마어마하게 쓰기때문에 당연히 압축이 필요(우리가 소비하는 모든 미디어는 압축되어있음)
 
-##### Chroma Subsampling 
+#### Chroma Subsampling 
 
 비디오 데이터는 YUV 컬러 모델을 이용해서 압축을 함
 - YUV 컬러 모델은 (Y: 밝기 영역, UV: 색영역)
@@ -169,7 +169,7 @@ YUV모델을 이용한 샘플링을 크로마 샘플링이라함
 4:2:2 = 수평방향으로 2픽셀씩 색차 평균내버림 (이렇게 하면 색차 정보를 1/2로 줄일수 있음)
 4:2:0 = 수평, 수직방향으로 색차 평균내버림 (이렇게 하면 색차 정보를 1/4로 줄일수 있음)
 
-##### Codec Compression 
+#### Codec Compression 
 
 Codec을 이용해서 인코딩(압축저장)/디코딩함
 - 인코딩에는 무손실과 손실 인코딩이 있음
@@ -182,7 +182,7 @@ AVFoudation에서 제공되는 코덱들
 - Video Codec: H.264, Apple ProRes
 - Audio Codec: AAC 
 
-##### Video Codec
+#### Video Codec
 
 H.264
 엄청 많이 사용되는 코덱(MPEG-4 part 14)
@@ -208,7 +208,7 @@ H.264 는 추가적으로 인코딩 프로파일을 제공함
 - Main: BaseLine 보다 연산적으로 좀더 많이 들어가는 버젼, 따라서 좋은 화질을 압축률을 높게 만들수 있음
 -  High: 가장 연산이 많이 들어감, 그래서 당연히 가장 높은 압축률을 만들어냄 
 
-##### Apple ProRes
+#### Apple ProRes
 
 영상전문가들을 위한 코덱
 이건  Iframe 만 있음 
@@ -217,16 +217,16 @@ Apple ProRes 422는 4:2:2크로마 섭샘플링과 10bit depth를 이용함
 ProRes는 OSX에서만 제공됨, iOS  개발시에는 H.264밖에 선택의 여지가 없음요
 
 
-##### Audio Codecs
+#### Audio Codecs
 AVFoundation은 CoreAudio 프레임웍에서 제공하는 코덱 모두 제공함. 
 LPCM(linear pcm) 을 사용하지 않은 경우에는 당신이 가장 많이 사용할 타입은 AAC 포맷이다
 
-##### AAC(Advanced Audio Coding)
+#### AAC(Advanced Audio Coding)
 MP3를 대폭 개선한 버젼으로 오디오 인코딩에 가장 많이 사용됨 
 추가로, 라이선스 및 특허 이슈가 없다 :) (MP3는 이걸로 사람들 좀괴롭힘)
 
 
-##### Container Format
+#### Container Format
 
 .mov, .m4v, mpg, m4a 는 파일타입이라고 말하기보다는, 컨테이너 포맷이라고 말하는게 훨씬 정확하다
 컨테이너 포맷이 뭐냐?
@@ -247,6 +247,6 @@ AVFoundation 에서 주로 사용할 두가지 컨테이너 포맷
         - 비디오: m4v
 
 
-##### Hello AV Foundation 
+#### Hello AV Foundation 
 
 
