@@ -250,3 +250,6 @@ AVFoundation 에서 주로 사용할 두가지 컨테이너 포맷
 #### Hello AV Foundation 
 
 
+#### Challenge
+- Take some time to browse through the documentation 
+  - https://developer.apple.com/av-foundation/
