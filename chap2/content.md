@@ -1,255 +1,251 @@
 
-# Chap 1 Getting Started with AV Foundation 
+# Chap 2 Playing and Recording Audio 
 
-- 1991: 애플이 quickTime 출시, 뒤로 매스미디어에 영향.   
-- 2001: 애플이 아이팟과 아이튠즈 출시.    
-- 2007: 애플이 아이폰을 출시.    
-- 디지털 미디어는 어디에나 있는 그런것이 되버림.     
+AVFoundation 은 처음에 오디오 플랫폼으로 시작함(비디오 없었음)
+- AVAudioPlayer, AVAudioRecorder 가 주로 쓰이는 클래스임(대신 조금 오래되긴 함)
 
+### Mac and iOS Enviroments
 
+오디오 레코딩과 플레이백을 보기전에 Mac과 iOS 환경을 이해하는게 좋다 
 
-### What is AV Foundation 
+iOS 환경에서 오디오 환경 시나리오
+- 음악 스피커로 들음
+- 전화가 와서 음악 정지하고, 다시 전화거절함
+- 그러면 스피커로 나오지만, 고음질로 듣기 위해 헤드폰을 낌
+- 헤드폰을 끼면 음원이 자동으로 스피커에서 헤드폰으로 라우팅됨 (음악 재생중에…)
 
-- 뭐냐? 애플의 시계열 기반 미디어 프레임웍임
-- 멀티스레드를 사용하도록 고안되었음 
-  - 멀티코어를 이용해서, 비싼 계산 및 GCD 처리를 할수 있음
-- 하드웨어 가속을 이용하여 성능도 자동으로 최적화함
+iOS 는 managed audio enviroment(audio session)를 제공함 
 
+### Understanding Audio Sessions
 
-### Where Does AV Foundation Fit?
+audio session은 앱과 iOS 간의 중간 매체라고 생각하면 됨 
+하드웨어에 대한 상세 인터랙션을 설명하는 대신, 앱이 어떻게 행동이 되어야 하는지를 설명해주면 됨
+모든 앱은 기본적으로 한개의 오디오 세션을 가짐 
+- 기본 설정은 아래과 같음
+    - 오디오 플레이백 켜짐, 레코딩은 꺼짐
+    - 무음모드에서는 소리는 안남
+    - 락스크린 켜지면 오디오는 무음됨
+    - 앱에서 음원 재생하면, 다른 재생중이던 음원은 음소거..
+기본 Audio session은 위와 같이 구성 되어 있지만, 각 앱에 맞게 오디오센션 행동에 대해 변경해줘야함(오디오를 이용하는 앱의 서비스의 경우). 
 
-![screen shot 2017-04-18 at 1 34 41 am](https://cloud.githubusercontent.com/assets/5119286/25215813/9590c530-25da-11e7-8d91-cc05dd568bf3.png)
+### Audio Session Categories
 
+오디오 세션은 7가지 카테고리로 오디오 행동에 대해 구분해놓음
 
-두 플랫폼 모두 webview를 통해서 `<audio>`, `<video>` 태그 사용가능함. 
-AVFoundation 밑의 레이어에는 C-based 프레임웍들이 있음
-- 속도가 빠름
-- 대신 사용하기 복잡하고 어려움
-- CoreAudio 
-    - 오디오 처리를 담당
-    - 녹음, 재생, 미디 컨텐츠 처리 
-- CoreVideo
-    - 디지털 비디오를 위해 파이프라인 모델을 제공
-    - 파이프라인은 이미지 버퍼 및 버퍼풀을 제공함 
-- CoreMedia
-    - 저수준의 데이터 타입 제공
-    - 타이밍 모델인 CMTime 제공
-- CoreAnimation
-    - 구성과 애니메이팅을 위한 프레임웍
-    - 애플플랫폼에서 유려한 움직임을 위한 프레임웍
+![category](https://cloud.githubusercontent.com/assets/5119286/25895643/b64960f2-35bb-11e7-93b4-1766e503342f.png)
 
+추가적으로 advanced control을 하려면 ,option과 mode를 사용하면됨 
+- VoIP, 비디오챗 등이 이런걸 열심히 씀
 
-고도화를 위해 사용하는 CoreMedia 혹은 CoreAudio와  직접적으로 상호작용할수 있음 
+### Configuring an Audio Session
 
-### Decomposing AV Foundation 
+audio session은 앱 생명주기동안 변경이 가능함 
+그러나 보통 한번 설정하고 끝나는데, 이거 설정하기 좋은 장소가….
+- `application:didFinishLaunchingWithOptions:` 임
+`AVAudioSession` 클래스는 앱이랑 인터랙션할수 있는 인터페이스를 제공함 
 
-AVFoundation 에  뭔놈의 클래스가 아따 엄청 많음 
-그래서 뭘 어떻게 언제 써야하는지 막막함 
-이제 샅샅이 나누어서 차근차근 살펴보자 
+### Audio Playback with AVAudioPlayer
 
+AVAudioPlayer는  오디오 재생에 대해 쉽게 구현할수 있는 인터페이스 제공
+AVAudioPlayer는 CoreAudio의 C기반 AudioQueue Service 위에 만들어진 녀석임 
+다만 가정이
+- 네트웍, 초적은 지연시간, 원형 오디오데이터에 접근하지 않을때 사용하기 짱임
 
-#### Audio Playback and Recording
 
-그림 1.1에 보면 AVFoundation 사각형 우측에 조그맣게 Audio-only 클래스들이 있다. 
-AVFoundation 에 AVAudioPlayer, AVAudioRecorder등은 오디오 관련 작업을 쉽게 해주는 녀석이다
+##### Creating an AVAudioPlayer
+AVAudioPlayer는 두가지 방법으로 구성할수 있는데 , 
+- 첫번째는 메모리에 있는 NSDatat로 
+-  두번째는 URL 기반으로 로컬에 있는 음원파일을 이용하는 방법
 
+AVAudioPlayer를 URL 기반으로 구성시, 인스턴스 만들고 나서, prepareToPlay를 호출해놓는게 좋음
+- 왜냐하면
+    - 미리 하드웨어 자원들을 받아놓음
+    - 플레이 메소드 호출시 지연시간을 줄일수 있음
 
-#### Media Inspection 
+##### Controlling Playback
 
-AVFoundation 에서는 당신이 쓰고 있는 미디어의 타입에 대해서 확인 할수 잇는 기능을 가지고 잇다. 
-미디어의 속성들을 확인할수 있음
-- 시간
-- 생성시간
-- 재생 볼륨
+AVAudioPlayer는 다음의 메소드가 있음
+- play
+- pause
+- stop (prepareToPlay 가 호출됨)
 
-추가적으로 AVMetadataItem을 이용해서 메타 데이터 정보도 볼수 있음 
+추가 고급기능이 있음
+- 플레이어 소리 조절
+- 소리의 위치 조절 ( -1 ~ 1.0)
+- 재생속도 (default: 1, 2배속, 0.5배속)
+- 반복 숫자 세팅을 이용해서 몇번이나 반복할지 정할수 있음 ( -1 세팅시 무한반복)
+- 오디오의 평균 파워값 및 최고 파워값을  얻어 올수 있음 
 
-#### Viedo Playback
 
-AVFoundation 은 비디오 재생에 많이 쓰임
-- 로컬, 네트웍 비디오 모두 재생 및 컨트롤이 가능함 
-- AVPlayer와 AVPlayerItem이 주요 역할을 할것임
-    - 심지어, 오디오, 비디오 두개를 각각 구분할수도 있음
+### Building an Audio Looper
 
+이번시간에는 오디오루핑 앱을 만듬
+- 3개의 플레이어를 동시에 재생하게 만드는 것임
+- 오디오 믹싱도됨
+- 플레이백 레이트 컨트롤하게함
 
-#### Media Capture
+loop count = -1 은 무한루프임
 
-왠만한 애플 제품에는 빌트인 카메라가 있는데 동영상 및 이미지 캡쳐가 가능하다 
-AVFoundation은 다양한 api들을 제공해주고 있음
-- AVCaptureSession 이 허브가 될 클래스이다. 
+먼저 거시적인 행동에 대해 먼저 구현
+- 3개 동시 재생
+- 정지
+- 플레이백 레이트 조율
 
-#### Media Editing 
 
-AVFoundation 은 미디어 구성과 편집에 강력한 기능들을 제공함 
-AVFoundation 은 미디어 클립의 편집, 오디오 파라미터 변경, 애니메이팅 타이틀 추가, 전환효과등을 줄수 있는 앱을 만들수 있게 해줌 (헐 진짜???)
+### Configuring the Audio Session 
 
-#### Media Processing 
+실제 앱에 올려놓고 테스트 해볼 리스트
+- 오디오 틀고 무음버튼 켜고,꺼보기
+- 오디오 틀고, 락스크린버튼 눌러보기
+아마 안들릴것임 > 그래서 오디오 세션에 대한 얘기를 좀 해야겠음 
 
-대부분의 작업은 비트와 바이트 접근하지 않고도 성취가 가능하나, 가끔은 비트와 바이트 단위로 접근해서 처리가 필요할때가 있다. 
-AVAssetReader, AVAssetWriter 가 미디어 프로세싱에 주요하게 필요한 클래스임
+모든 iOS앱은 기본 오디오 세션 제공(category: solo ambient)
+- 사실 이것은 오디오 재생이 주목적인 앱에게는 적당하지 않음
 
-### Understanding Digital Media
+오디오세션이 한번 세팅이 되야 하기 때문에, appdelegate에서 세팅하겠다 
+- 이번 실습 앱은 주목적이 오디오재생이므로 
+    - 카테고리를 AVAudioSessionCategoryPlayback 로 세팅하겠음
+- setAction:error: 메소드를 이용해서 오디오세션을 activate 하겠음
 
-우리가 소비하는 모든 미디어들은 디지털화 되어 있는데, 아날로그 데이터를  디지털로 변환하는데 생각해본적이 있니? …. 음 없지… 그러니 이책을 보고 있지…..
+이렇게 하고 다시 테스트 
+- 무음모드에서 재생시 > 통과
+- 락스크린 켜기 (백그라운드 재생) > 실패
 
-우리의 신체 기관 (눈, 귀)등은 이러한 아날로그 데이터를 전기신호로 바꾸어 준다. 
-자연에서 우리가 접하는 아날로그 데이터들은 continuous한데 결국에는 디지털로 만들기 위해서는 0, 1로 바꾸어주어야함. 
-이를 위해서 우리가 먼저해야할 일이 샘플링 하기이다 
+백그라운드에서 실행해주기 위해서는 Info.plist 에서 백그라운드모드를 세팅해주어야함 
 
-#### Digital Media Sampling
 
-샘플링 방법에는 크게 두가지가 있음
-- temporal 샘플링 : 시간기반(오디오 샘플링 기법)
-- spatial 샘플링 : 공간기반(이미지 쪽 샘플링 기법)
-- 비디오의 경우 두가지 샘플링 방법 모두 사용
 
-#### Understanding Audio Sampling
 
-소리가 뭐냐!
-- 우리가 실제 듣는 소리라는 것은, 매개를 통해 전달되는 어떤 진동인것임 
-- 이 진동이 고막에 도착해서 원래 음원에서 발생했던 주파수와 크기를 다시 만듬 
-- 이것을 다시 전기신호로 변환해서 뇌로 보냄
+### Handling Interruptions
 
-다시 샘플링
-신호에는 우리가 봐야할 두가지 측면이 있다 
-- 크기 
-- 주파수 (주기)
+오디오 앱의 디테일을 챙기는것중 중요한것 하나가 인터럽션 핸들링이다 
+iOS 자체는 이부분에서 OS입장에서 핸들링을 엄청잘하고 있지만, 앱의 디테일을 위해서는 
+우리가 직접 잘 처리해줘야함 
 
-유용한 지식 01
-- 피아노 제일 저음 A0 : 27.5 Hz
-- 피아노 제일 고음 C8 : 4.1 kHz
+인터럽션 핸들을 위해서는 테스트를 해야함 
+아래의 절차에 따라 테스트를 해보자 
+- 앱을 실행하고 재생시키자
+- 오디오가 재생되는 동안에, 전화나 페이스타임을 통해 인터럽션을 발생시켜보자
+- 거절 버튼을 이용해서 전화를 끊어 보자 
 
-오디오 dizitizing에는 LPCM이라는 인코딩 방법이 수반됨 
-- 아날로그 신호를 그대로 디지털화한것임(아주 날것 그대로, 다만 디지털로만 바꾼형태)
+위의 테스트를 제대로 수행한 경우, 현재 재생중인 오디오가 조용히 페이드아웃되고, 전화 거절이후에도 정지해 있는 모습을 볼수 있다. 
+- 전화 이후에는 다시 오디오가 재생해야할것 같은데,, 안됨
 
-나이퀴스트 띠어럼
-- 특정 주파수를 캡쳐하려할때는 그 2배되는 주파수 샘플링하면 가능함
 
-주파수 외에도 각 오디오 샘플들을 어떻게 정확하게 캡쳐할까에 대한 측면이 있음
-- 양자화: 캡쳐된 신호를 어느 정도로 정량화 할것인가? 
-    - bitDepth로 얘기함
+### Audio Session Notifications
+AVAudioSession 에게 AVAudioSessionInterruptionnotification을 등록하여 인터럽션 상황을 공지 받도록 설정함
+- 이때 재생/정지 버튼 업데이트를 제대로 처리해야함
 
-유용한 지식 02
-- 1분짜리 44.1kHz 16bit LPCM 샘플링 크기 ?
-    - bitwise: 16 * 44100 * 60 = 42,336,000 bit 
-    - bytewise: 2 * 44100 * 60  = 5,292,000 byte (5Mb)
-        - 보통 음원 Streo(channel이 2개), 따라서 5Mb * 2= 10Mb
 
-비디오가 뭐냐!
-- 이미지(프레임이라 부름)의 순서임 
-- 보통 비디오 프레임 레이트 = 30fps
+AVAudioSessionInterrruptionTypeEnded의 노티가 오면, 
+- 오디오 세션이 다시 활성화되고, 다시 재생할수 있음을 얘기함
 
-비디오 Dizitizing
-- 보통 가로세로비율 16:9
-- 보통 화면 해상도 1920 x 1080
-- 초당 178Mb, 시간당 625Gb 필요(Holy great mother of god!!)
+##### Responding to Route Changes
 
-![screen shot 2017-04-19 at 6 33 19 pm](https://cloud.githubusercontent.com/assets/5119286/25239885/51c6021e-262c-11e7-9ad4-e27921982d79.png)
+한가지 마지막으로 오디오 앱에서 챙겨하는 것이 오디오 라우트 변경에 대응해야함
 
+이것을 대응하기 위해 해보아야할 테스트
+- 앱을 켜고 
+- 재생하고
+- 헤드폰을 껴보고
 
-### Digital Media Compression 
 
-디지털 미디어는 공간을 어마어마하게 쓰기때문에 당연히 압축이 필요(우리가 소비하는 모든 미디어는 압축되어있음)
+원래 폰에서 키고 헤드폰 끼면 재생이 그대로 되어야함
+대신 헤드폰 뺐을때는 음악이 정지되어야함(그런데 지금은 그냥 틀어지고 있음) > HIG에서 이렇게 가이드하고 있음
 
-#### Chroma Subsampling 
 
-비디오 데이터는 YUV 컬러 모델을 이용해서 압축을 함
-- YUV 컬러 모델은 (Y: 밝기 영역, UV: 색영역)
-- 이유: 사람눈은 밝기에 보다 민감함,, 색차는 상대적으로 둔함 그래서 YUV모델 사용
+AVAudioSessionRouteChangeNotification을 AVAudioSessoin에 등록해서 변경사항을 노티 받도록 함
+- 노티받으면 userInfo에서 AVAudioSessionRouteChangeReasonKey 를 통해서 변경사항을 알수가 있음 
 
-YUV모델을 이용한 샘플링을 크로마 샘플링이라함 
-- 여기서, 4:4:4, 4:2:2 이런 숫자가 나옴  (J: a: b) 비율
-    - J: 참조할 블럭의 갯수 (보통 4개)
-    - A: J 픽셀에 첫번째줄에 저장된 색차픽셀의 갯수
-    - B: J 픽셀에 두번째줄에 저장된 색차픽셀의 갯수
-    
-![screen shot 2017-04-21 at 12 50 02 am](https://cloud.githubusercontent.com/assets/5119286/25239939/80f95eaa-262c-11e7-9eb3-31d293f92efa.png)
+다시 한번 강조하면, 미디어 관련 앱 만들때에는 
+- 인터럽션 핸들링 
+- 라우터 변경 핸들링 
+꼭 해줘야함 
 
-4:4:4 = 압축 없음
-4:2:2 = 수평방향으로 2픽셀씩 색차 평균내버림 (이렇게 하면 색차 정보를 1/2로 줄일수 있음)
-4:2:0 = 수평, 수직방향으로 색차 평균내버림 (이렇게 하면 색차 정보를 1/4로 줄일수 있음)
 
-#### Codec Compression 
 
-Codec을 이용해서 인코딩(압축저장)/디코딩함
-- 인코딩에는 무손실과 손실 인코딩이 있음
+### Audio Recording with AVAudioRecorder
 
-유용한 지식 01
-- 사람의 귀 가청영역: 20 ~20000 hz
-- 사람의 귀가 가장 민감한 가청 영역: 1000 ~ 5000 hz
+오디오 플레이만큼 오디오 레코딩도 AVFounation과 함께라면 짱 쉬움
+- AVAudioRecorder 를 이용하면됨
 
-AVFoudation에서 제공되는 코덱들
-- Video Codec: H.264, Apple ProRes
-- Audio Codec: AAC 
+Creating an AVAudioRecorder
 
-#### Video Codec
+AVAudioRecorder는 3개의 데이터만 있으면 만들수 있음
+- 로컬URL(오디오음원이 기록될곳)
+- 레코딩 세션관련 configuration Dictionary
+- error포인터 (에러 발생시 이 error에다가 생성하게됨)
 
-H.264
-엄청 많이 사용되는 코덱(MPEG-4 part 14)
-두가지 측면에서 획기적으로 압축률을 높였다 
-- Spatially: 프레임별 압축
-- Temporally: 프레임간 압축
+AVAudioRecorder 객체를 만들고 나면, prepareToRecord메소드를 호출해주어야 미리 리소스 준비하게됨
 
-![screen shot 2017-04-20 at 3 06 01 pm](https://cloud.githubusercontent.com/assets/5119286/25240103/f4e5c614-262c-11e7-9a8b-b457ea8795c7.png)
 
-IntraFrame Compression:
-- JPEG 처럼 이미지 압축을 함
-- 나중에 Inter Compression 기준프레임인 I-frame이 될 예정
+##### Audio Format 
+AVFormatIDKey는 어떤 형태의 오디오로 저장이 될지 결정해준다 
+아래의 형태로 저장가능
+- kAudioFormatLinearPCM
+- kAudioFormatMPEG4AAC
+- kAudioFormatAppleLossless
+- kAudioFormatAppleIMA4
+- kAudioFormatiLBC
+- kAudioFormatULaw
 
-InterFrame Compression:
-- 프레임은 그룹을 이룸 (GOP)
-- I frame: 키프레임이며, 이미지 생성을 위한 모든 데이터를 가짐
-- P frame: 주변 p, i frame을 기반으로 인코딩됨, 또 본인자신이 b, p frame에 참조가 됨
-- B frame: 앞뒤 전후 프레임으로부터 만든 프레임, 정보가 워낙 적어서 압축률은 높지만 디코딩이 시간 걸림
 
 
-H.264 는 추가적으로 인코딩 프로파일을 제공함
-- BaseLine:  모바일 용 인코딩을 할때 베이스라인 써야됨, 이건 B. frame을 안쓰는것인데, 그이유는 디코디에 연산이 넘 많이 들어감
-- Main: BaseLine 보다 연산적으로 좀더 많이 들어가는 버젼, 따라서 좋은 화질을 압축률을 높게 만들수 있음
--  High: 가장 연산이 많이 들어감, 그래서 당연히 가장 높은 압축률을 만들어냄 
+##### Sample Rate
+AVSampleRateKey를 이용해서 레코딩 샘플링 레이트를 정함 
 
-#### Apple ProRes
+##### Number of Channels
+AVNumberOfChannelsKey를 이용해서 몇개의 오디오 채널을 사용할지 지정함
 
-영상전문가들을 위한 코덱
-이건  Iframe 만 있음 
-비록, 손실압축이지만, 화질 제일 쩔
-Apple ProRes 422는 4:2:2크로마 섭샘플링과 10bit depth를 이용함
-ProRes는 OSX에서만 제공됨, iOS  개발시에는 H.264밖에 선택의 여지가 없음요
+##### Format-Specific Keys
+포맷의 추가적인 구체사항들을 정의 할수 있음
 
+##### Controlling Recording 
+AvAudioRecorder는 아래의 리스트를 수행할 수 있는 메소드가 있음
+- 무한기간 녹음
+- 미래의 특정 지점에 녹음하기 
+- 특정 시간동안만 녹음하기 
+- 녹음을 일시 중지한후 다시 시작하기 
 
-#### Audio Codecs
-AVFoundation은 CoreAudio 프레임웍에서 제공하는 코덱 모두 제공함. 
-LPCM(linear pcm) 을 사용하지 않은 경우에는 당신이 가장 많이 사용할 타입은 AAC 포맷이다
 
-#### AAC(Advanced Audio Coding)
-MP3를 대폭 개선한 버젼으로 오디오 인코딩에 가장 많이 사용됨 
-추가로, 라이선스 및 특허 이슈가 없다 :) (MP3는 이걸로 사람들 좀괴롭힘)
+### Building a Voice Memo App
 
 
-#### Container Format
+##### Audio Session Configuration 
 
-.mov, .m4v, mpg, m4a 는 파일타입이라고 말하기보다는, 컨테이너 포맷이라고 말하는게 훨씬 정확하다
-컨테이너 포맷이 뭐냐?
-- 메타파일 포맷이라고 생각하자
-- 폴더인데 거기에 컨텐츠에 대한 상세를 써놓은 폴더라고 생각하자 
-    - 예를 들면 퀵타임 파일에는 동영상, 오디오, 자막, 챕터 정보와 이것들을 상세 설명하고 있는 메타데이터가 있다고 보면됨
+레코딩을 위해서는 AudioSessionCategory 를 AVAudioSessionCategoryPlayAndRecord로 하여라
+iOS7부터는 마이크 사용시 os에서 사용자로부터 퍼미션을 물어보도록 되어있다(앱에서 맘대로 오디오 못키게)
 
-AVFoundation 에서 주로 사용할 두가지 컨테이너 포맷
-- QuickTime 
-    - 애플에서 제공하는 컨테이너 포맷
-    - spec: https://developer.apple.com/library/content/documentation/QuickTime/QTFF/QTFFPreface/qtffPreface.html
-- MPEG-4
-    - MPEG-4 part 14 (mp4) 컨테이너 포맷
-    - QuickTime에서 나온 형태이며, 업계 표준임
-    - mp4 가 공식 확장자 인데,  그외에도 다른 확장자들이 애플 기기환경에서 특히 많이 쓰임 
-    - 가끔 미디어 타입에 따라 구분을 지려고 할때가 있음
-        - 오디오: m4a
-        - 비디오: m4v
 
+##### Recorder Implementation 
+THRecorderController 요런 클래스가 있음
+- 레코딩 작업 관련 메소드들이 있음
+위 클래스는 AVAudioRecorderDelegate를 따르는데
+- 레코딩끝날시 호출받는 메소드를 가지고 있음
 
-#### Hello AV Foundation 
+AVAudioRecorder는 currentTime 이라는 프로퍼티가 있음
+- 이걸 이용해서 시간관련 피드백을 사용자에게 쉽게 줄수 있음
+- 레코딩 시간관련 업데이트 어떻게 시킬것인가?
+    - 그냥드는 생각은?  KVO를 통해서 currentTime이 바뀌는것을 옵저빙하면 되지 않을까?
+        - 근데 currentTime은 observable 하지 않아서 KVO방식 안되용
+    - KVO 대신 NSTimer를 이용해서 계속 업데이트 하는 방법을 써야함
 
+##### Enabling Audio Metering 
 
-#### Challenge
-- Take some time to browse through the documentation 
-  - https://developer.apple.com/av-foundation/
+사용자에게 녹음시, 음성신호에 대한 시각적 피드백을 주는 것은 좋음
+- metering  을 이용하면 할수가 있음
+
+AVAudioRecorder랑 AVAudioPlayer 모두 오디오 metering을 할수가 있다. 짱!
+- Average 와 peak값을 모두 읽을 수 있음 (db레벨임)
+- averagePowerForChannler: , peak-PowerForChannel: 메소드를 이용하면 float값을 넘김(db레벨임)
+- (최소)-160 ~ 0(최대음)db까지
+- 이거 미터링 쓸라면, meteringEnabled 프로퍼티 켜야됨
+- 미터링 값 읽기 전에 updateMeters 메소드로 업데이트 하고 값 가져오기 
+
+NSTimer를 이용해서 매번 미터링을 업데이트 할수 있음
+- 좀더 정확하고 스무스 하게 미터링 업데이트를 일정시간동안 하려면 CADisplayLink를 이용해야함 
+- CADisplayLink 는 화면 fps에 맞추어서 업데이트 되기때문에 일정시간동안 업데이트 보장
+
+
+
+
