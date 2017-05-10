@@ -52,7 +52,7 @@ AVAudioPlayer는 CoreAudio의 C기반 AudioQueue Service 위에 만들어진 녀
 - 네트웍, 초적은 지연시간, 원형 오디오데이터에 접근하지 않을때 사용하기 짱임
 
 
-##### Creating an AVAudioPlayer
+### Creating an AVAudioPlayer
 AVAudioPlayer는 두가지 방법으로 구성할수 있는데 , 
 - 첫번째는 메모리에 있는 NSDatat로 
 -  두번째는 URL 기반으로 로컬에 있는 음원파일을 이용하는 방법
@@ -62,7 +62,7 @@ AVAudioPlayer를 URL 기반으로 구성시, 인스턴스 만들고 나서, prep
     - 미리 하드웨어 자원들을 받아놓음
     - 플레이 메소드 호출시 지연시간을 줄일수 있음
 
-##### Controlling Playback
+### Controlling Playback
 
 AVAudioPlayer는 다음의 메소드가 있음
 - play
@@ -140,7 +140,7 @@ AVAudioSession 에게 AVAudioSessionInterruptionnotification을 등록하여 인
 AVAudioSessionInterrruptionTypeEnded의 노티가 오면, 
 - 오디오 세션이 다시 활성화되고, 다시 재생할수 있음을 얘기함
 
-##### Responding to Route Changes
+### Responding to Route Changes
 
 한가지 마지막으로 오디오 앱에서 챙겨하는 것이 오디오 라우트 변경에 대응해야함
 
@@ -179,7 +179,7 @@ AVAudioRecorder는 3개의 데이터만 있으면 만들수 있음
 AVAudioRecorder 객체를 만들고 나면, prepareToRecord메소드를 호출해주어야 미리 리소스 준비하게됨
 
 
-##### Audio Format 
+### Audio Format 
 AVFormatIDKey는 어떤 형태의 오디오로 저장이 될지 결정해준다 
 아래의 형태로 저장가능
 - kAudioFormatLinearPCM
@@ -191,16 +191,16 @@ AVFormatIDKey는 어떤 형태의 오디오로 저장이 될지 결정해준다
 
 
 
-##### Sample Rate
+### Sample Rate
 AVSampleRateKey를 이용해서 레코딩 샘플링 레이트를 정함 
 
-##### Number of Channels
+### Number of Channels
 AVNumberOfChannelsKey를 이용해서 몇개의 오디오 채널을 사용할지 지정함
 
-##### Format-Specific Keys
+### Format-Specific Keys
 포맷의 추가적인 구체사항들을 정의 할수 있음
 
-##### Controlling Recording 
+### Controlling Recording 
 AvAudioRecorder는 아래의 리스트를 수행할 수 있는 메소드가 있음
 - 무한기간 녹음
 - 미래의 특정 지점에 녹음하기 
@@ -211,13 +211,13 @@ AvAudioRecorder는 아래의 리스트를 수행할 수 있는 메소드가 있�
 ### Building a Voice Memo App
 
 
-##### Audio Session Configuration 
+### Audio Session Configuration 
 
 레코딩을 위해서는 AudioSessionCategory 를 AVAudioSessionCategoryPlayAndRecord로 하여라
 iOS7부터는 마이크 사용시 os에서 사용자로부터 퍼미션을 물어보도록 되어있다(앱에서 맘대로 오디오 못키게)
 
 
-##### Recorder Implementation 
+### Recorder Implementation 
 THRecorderController 요런 클래스가 있음
 - 레코딩 작업 관련 메소드들이 있음
 위 클래스는 AVAudioRecorderDelegate를 따르는데
@@ -230,7 +230,7 @@ AVAudioRecorder는 currentTime 이라는 프로퍼티가 있음
         - 근데 currentTime은 observable 하지 않아서 KVO방식 안되용
     - KVO 대신 NSTimer를 이용해서 계속 업데이트 하는 방법을 써야함
 
-##### Enabling Audio Metering 
+### Enabling Audio Metering 
 
 사용자에게 녹음시, 음성신호에 대한 시각적 피드백을 주는 것은 좋음
 - metering  을 이용하면 할수가 있음
