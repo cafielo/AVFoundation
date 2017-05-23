@@ -7,7 +7,7 @@
 - 디지털 미디어는 어디에나 있는 그런것이 되버림.     
 
 
-
+<br><br>
 ### What is AV Foundation 
 
 - 뭐냐? 애플의 시계열 기반 미디어 프레임웍임
@@ -15,7 +15,7 @@
   - 멀티코어를 이용해서, 비싼 계산 및 GCD 처리를 할수 있음
 - 하드웨어 가속을 이용하여 성능도 자동으로 최적화함
 
-
+<br><br>
 ### Where Does AV Foundation Fit?
 
 ![screen shot 2017-04-18 at 1 34 41 am](https://cloud.githubusercontent.com/assets/5119286/25215813/9590c530-25da-11e7-8d91-cc05dd568bf3.png)
@@ -41,6 +41,7 @@ AVFoundation 밑의 레이어에는 C-based 프레임웍들이 있음
 
 고도화를 위해 사용하는 CoreMedia 혹은 CoreAudio와  직접적으로 상호작용할수 있음 
 
+<br><br>
 ### Decomposing AV Foundation 
 
 AVFoundation 에  뭔놈의 클래스가 아따 엄청 많음 
@@ -64,6 +65,7 @@ AVFoundation 에서는 당신이 쓰고 있는 미디어의 타입에 대해서 
 
 추가적으로 AVMetadataItem을 이용해서 메타 데이터 정보도 볼수 있음 
 
+
 #### Viedo Playback
 
 AVFoundation 은 비디오 재생에 많이 쓰임
@@ -78,6 +80,7 @@ AVFoundation 은 비디오 재생에 많이 쓰임
 AVFoundation은 다양한 api들을 제공해주고 있음
 - AVCaptureSession 이 허브가 될 클래스이다. 
 
+
 #### Media Editing 
 
 AVFoundation 은 미디어 구성과 편집에 강력한 기능들을 제공함 
@@ -88,6 +91,7 @@ AVFoundation 은 미디어 클립의 편집, 오디오 파라미터 변경, 애�
 대부분의 작업은 비트와 바이트 접근하지 않고도 성취가 가능하나, 가끔은 비트와 바이트 단위로 접근해서 처리가 필요할때가 있다. 
 AVAssetReader, AVAssetWriter 가 미디어 프로세싱에 주요하게 필요한 클래스임
 
+<br><br>
 ### Understanding Digital Media
 
 우리가 소비하는 모든 미디어들은 디지털화 되어 있는데, 아날로그 데이터를  디지털로 변환하는데 생각해본적이 있니? …. 음 없지… 그러니 이책을 보고 있지…..
@@ -146,7 +150,7 @@ AVAssetReader, AVAssetWriter 가 미디어 프로세싱에 주요하게 필요�
 
 ![screen shot 2017-04-19 at 6 33 19 pm](https://cloud.githubusercontent.com/assets/5119286/25239885/51c6021e-262c-11e7-9ad4-e27921982d79.png)
 
-
+<br><br>
 ### Digital Media Compression 
 
 디지털 미디어는 공간을 어마어마하게 쓰기때문에 당연히 압축이 필요(우리가 소비하는 모든 미디어는 압축되어있음)
@@ -246,10 +250,10 @@ AVFoundation 에서 주로 사용할 두가지 컨테이너 포맷
         - 오디오: m4a
         - 비디오: m4v
 
-
+<br><br>
 #### Hello AV Foundation 
 
-
+<br><br>
 #### Challenge
 - Take some time to browse through the documentation 
   - https://developer.apple.com/av-foundation/
