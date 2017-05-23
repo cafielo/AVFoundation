@@ -6,7 +6,7 @@ iOS4 이후에 AVFoundation 나왔
 - 예를들면, 캡쳐링, 재생, 미디어 프로세싱
 - 그리고 이것은 파일기반 클래스가 아닌 Asset 기반 클래스로 바꾸는 시점이됨
 
-    
+ <br><br>   
 ### Understanding Assets
 
 AVFoudnation 의 중심은 AVAsset 임
@@ -20,6 +20,7 @@ AVFoudnation 의 중심은 AVAsset 임
 
 <img width="562" alt="screen shot 2017-05-23 at 6 32 42 pm" src="https://cloud.githubusercontent.com/assets/5119286/26348061/6ba3035c-3fe6-11e7-87b5-82d801ec3301.png">
 
+<br><br>
 ### Creating an Assets
 
 AVAsset은 만들때 미디어의 URL을 넘겨서 만듬
@@ -38,6 +39,7 @@ iOS에서 AssetsLibrary 프레임웍을 통해 이것을 읽고 쓸수 있게해
 OSX 10.8, iTunes 11.0 이후, iTunesLibrary 프레임웍을 통해 라이브러리의 아이템을 접근할수 있게 해줌
 MediaPlayer  프레임웍처럼 조건을 위한 api는 없지만, NSPredicate을 이용하면 조건 검색 가능
 
+<br><br>
 ### Asynchronous Loading
 
 AVAsset은 여러 트랙을 가져와서 작업할수 있는 메소드를 제공한다
@@ -48,7 +50,7 @@ AVAsset은 미디어의 어셋의 속성들을 로딩하는 것을 약간 미루
 - 그래서 어셋 속성접근시에는 비동기 쿼리를 사용해야함
     - loadValuesAsynchronouslyForKeys:completionHandler:  메소드를 사용함
 
-
+<br><br>
 ### Media Metadata
 
 AVFoundation은 미디어의 메타데이터도 관리해줌
@@ -68,7 +70,7 @@ AVFoundation은 미디어의 메타데이터도 관리해줌
 <img width="524" alt="screen shot 2017-05-23 at 6 35 30 pm" src="https://cloud.githubusercontent.com/assets/5119286/26348155/c47707f8-3fe6-11e7-9a5b-f77601954112.png">
 
 
-
+<br><br>
 ### Working with Metadata
 
 AVAsset, AVAssetTrack 모두 메타데이터에 대한 정보를 가져 올수있는 능력이 있음
@@ -92,7 +94,7 @@ AVMetaDataItem은 하나의 key-value페어의 래퍼이당
 
 <img width="557" alt="screen shot 2017-05-23 at 6 37 21 pm" src="https://cloud.githubusercontent.com/assets/5119286/26348193/ec590168-3fe6-11e7-9757-2f5ac39237f4.png">
 
-
+<br><br>
 ### Building the MetaManager App
 이번 메타데이터 매니저앱은 AVFoundation이 지원하는 모든타입의 메타데이터 보여줌, 그리고 메타데이터 쓰는것까지…..(MP3는 쓰는건 안되는건 함정)
 AVFoundation이 많은부분에서 추상화 시켜주고 있긴하지만, 실제로 통일화된 방식으로 관리하기 어려움
@@ -109,7 +111,7 @@ AVFoundation은 ID3 태그의 정보를 읽어 올수 있지만, 쓸수는 없�
 addMetadataItem메소드로 AVMetatatItem 형태로 저장시킴
 metadataItems 메소드로 모든 메타데이터 정보를 가져옴 
 
-
+<br><br>
 ### Data Converter
 AVMetadataItem 을 쓰면서, 가장 힘든점은 value 속성을 이해하는 점임 
 - 단순한 string,  int는 괜찮은데 가끔 혼란스러운것들 나옴
@@ -138,7 +140,7 @@ CD에서 곡이 어느 디스크에 몇번째냐 정보를 얻어올때 쓰임
 마무리하면서 해야할게 metadataItem 메소드만드는 것임
 - 이건 현재 보여주는 값들을 다 가져와서 AVMetadataItem으로 컨버팅해주는 것임
 
-
+<br><br>
 ### Saving Metadata
 
 앞에서 메타데이터 읽고 쓰기 배움
@@ -156,6 +158,7 @@ AVAssetExportSession은 해당 소스의 asset과 export preset 을 이용해서
 AVAssetExportPresetPassthrough 은 일단, 기존의 프리셋에 있는 것들 안거드리고 일단 진행할때 씀   
 AVAssetExportPresetPassthrough 사전 설정은 특정 시나리오에서 유용 할 수 있으며 데모 응용 프로그램의 목적에 적합합니다. 그러나 제한 사항이 있음을 유의하십시오. MPEG-4 또는 QuickTime 컨테이너에서 기존 메타 데이터를 수정할 수 있지만 새 메타 데이터를 추가 할 수는 없습니다. 새 메타 데이터를 추가하는 유일한 방법은 트랜스 코딩 사전 설정 중 하나를 사용하는 것입니다. 또한 ID3 태그를 수정하는 데 사용할 수 없습니다. 프레임 워크는 MP3 데이터 작성을 지원하지 않기 때문에 데모 응용 프로그램의 MP3 파일은 읽기 전용이었습니다.
 
+<br><br>
 ### Challenge
 미디어 라이브러리에서 노래나 비디오 복사떠보고,, 아이튠즈에서 한번 메타정보를 모두 넣어봐라?
 -> 이건 생략 
