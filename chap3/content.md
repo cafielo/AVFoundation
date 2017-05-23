@@ -1,247 +1,154 @@
 
-# Chap 2 Playing and Recording Audio 
+# Chap 3 Working with Asset and Metadata
 
-AVFoundation 은 처음에 오디오 플랫폼으로 시작함(비디오 없었음)
-- AVAudioPlayer, AVAudioRecorder 가 주로 쓰이는 클래스임(대신 조금 오래되긴 함)    
-  
+iOS4 이후에 AVFoundation 나왔
+- 이것은 미디어 활용에 있어서 다양한 짓을 할수 있게해줌
+- 예를들면, 캡쳐링, 재생, 미디어 프로세싱
+- 그리고 이것은 파일기반 클래스가 아닌 Asset 기반 클래스로 바꾸는 시점이됨
 
     
-### Mac and iOS Enviroments
+### Understanding Assets
 
-오디오 레코딩과 플레이백을 보기전에 Mac과 iOS 환경을 이해하는게 좋다   
-iOS 환경에서 오디오 환경 시나리오. 
-- 음악 스피커로 들음
-- 전화가 와서 음악 정지하고, 다시 전화거절함
-- 그러면 스피커로 나오지만, 고음질로 듣기 위해 헤드폰을 낌
-- 헤드폰을 끼면 음원이 자동으로 스피커에서 헤드폰으로 라우팅됨 (음악 재생중에…). 
-
-iOS 는 managed audio enviroment(audio session)를 제공함   
-
-### Understanding Audio Sessions  
-
-audio session은 앱과 iOS 간의 중간 매체라고 생각하면 됨 
-하드웨어에 대한 상세 인터랙션을 설명하는 대신, 앱이 어떻게 행동이 되어야 하는지를 설명해주면 됨
-모든 앱은 기본적으로 한개의 오디오 세션을 가짐 
-- 기본 설정은 아래과 같음
-    - 오디오 플레이백 켜짐, 레코딩은 꺼짐
-    - 무음모드에서는 소리는 안남
-    - 락스크린 켜지면 오디오는 무음됨
-    - 앱에서 음원 재생하면, 다른 재생중이던 음원은 음소거..
-기본 Audio session은 위와 같이 구성 되어 있지만, 각 앱에 맞게 오디오센션 행동에 대해 변경해줘야함(오디오를 이용하는 앱의 서비스의 경우). 
-  
-  
-### Audio Session Categories
-
-오디오 세션은 7가지 카테고리로 오디오 행동에 대해 구분해놓음
-
-![category](https://cloud.githubusercontent.com/assets/5119286/25895643/b64960f2-35bb-11e7-93b4-1766e503342f.png)
-
-추가적으로 advanced control을 하려면 ,option과 mode를 사용하면됨 
-- VoIP, 비디오챗 등이 이런걸 열심히 씀
-
-### Configuring an Audio Session
-
-audio session은 앱 생명주기동안 변경이 가능함 
-그러나 보통 한번 설정하고 끝나는데, 이거 설정하기 좋은 장소가….
-- `application:didFinishLaunchingWithOptions:` 임
-`AVAudioSession` 클래스는 앱이랑 인터랙션할수 있는 인터페이스를 제공함 
-
-### Audio Playback with AVAudioPlayer
-
-AVAudioPlayer는  오디오 재생에 대해 쉽게 구현할수 있는 인터페이스 제공
-AVAudioPlayer는 CoreAudio의 C기반 AudioQueue Service 위에 만들어진 녀석임 
-다만 가정이
-- 네트웍, 초적은 지연시간, 원형 오디오데이터에 접근하지 않을때 사용하기 짱임
+AVFoudnation 의 중심은 AVAsset 임
+- AVAsset은 미디어를 하나의 추상화 시킨 객채로 보면됨… 짱
+    - 크게 두가지모델을 추상화 시켰는데..
+    - 첫째, 포맷 (코덱의 디테일 생각안해도됨)
+    - 두째, 리소스의 위치
+- AVAsset 은 미디어 그 자체는 아니고, 컨테이너 정도로 생각하자 
+    - 실제 미디어 데이터는 AVAssetTrack이란 놈으로 래핑함
+    - AVAssetTrack은 AVAsset.tracks 프로퍼티로 접근가능요
 
 
-### Creating an AVAudioPlayer
-AVAudioPlayer는 두가지 방법으로 구성할수 있는데 , 
-- 첫번째는 메모리에 있는 NSDatat로 
--  두번째는 URL 기반으로 로컬에 있는 음원파일을 이용하는 방법
+### Creating an Assets
 
-AVAudioPlayer를 URL 기반으로 구성시, 인스턴스 만들고 나서, prepareToPlay를 호출해놓는게 좋음
-- 왜냐하면
-    - 미리 하드웨어 자원들을 받아놓음
-    - 플레이 메소드 호출시 지연시간을 줄일수 있음
+AVAsset은 만들때 미디어의 URL을 넘겨서 만듬
+- 로컬주소, 리모트 서버주소 뭐 다됨
 
-### Controlling Playback
+** iOS Asset Library **
+주로 비디오 같은것들은 photos libary에 있음
+iOS에서 AssetsLibrary 프레임웍을 통해 이것을 읽고 쓸수 있게해줌 
 
-AVAudioPlayer는 다음의 메소드가 있음  
-- play
-- pause
-- stop (prepareToPlay 가 호출됨)  
-  
-추가 고급기능이 있음  
-- 플레이어 소리 조절
-- 소리의 위치 조절 ( -1 ~ 1.0)
-- 재생속도 (default: 1, 2배속, 0.5배속)
-- 반복 숫자 세팅을 이용해서 몇번이나 반복할지 정할수 있음 ( -1 세팅시 무한반복)
-- 오디오의 평균 파워값 및 최고 파워값을  얻어 올수 있음 
+** iOS iPod Library **
+주로 ipod libary에서 미디어를 가져오고 싶은데…. 이째 어찌함?
+- MediaPlayer framework 이 쿼리 날려서 library에 있는 아이템들 찾을수 있게 해줌
+- MPMediaPropertyPredicate 을 이용해서 조건 검색을 할수 있게 해줌
 
+** Mac iTunes Library **
+OSX 10.8, iTunes 11.0 이후, iTunesLibrary 프레임웍을 통해 라이브러리의 아이템을 접근할수 있게 해줌
+MediaPlayer  프레임웍처럼 조건을 위한 api는 없지만, NSPredicate을 이용하면 조건 검색 가능
 
-### Building an Audio Looper  
-이번시간에는 오디오루핑 앱을 만듬
-- 3개의 플레이어를 동시에 재생하게 만드는 것임
-- 오디오 믹싱도됨
-- 플레이백 레이트 컨트롤하게함
+### Asynchronous Loading
 
-loop count = -1 은 무한루프임  
-  
-먼저 거시적인 행동에 대해 먼저 구현  
-- 3개 동시 재생
-- 정지
-- 플레이백 레이트 조율
+AVAsset은 여러 트랙을 가져와서 작업할수 있는 메소드를 제공한다
+AVAsset은 미디어의 어셋의 속성들을 로딩하는 것을 약간 미루게 디자인하였음
+- 이것은 어셋객체를 즉시 만들수 있게해줌
+- 그런데 알아둬야할것은 속성에 접근하는것은 항상 동기적으로 일어남
+- 동기적으로 일어나다 보니 생기는 문제가 있음 (UI가 멈춘다든지….)
+- 그래서 어셋 속성접근시에는 비동기 쿼리를 사용해야함
+    - loadValuesAsynchronouslyForKeys:completionHandler:  메소드를 사용함
 
 
-### Configuring the Audio Session  
+### Media Metadata
 
-실제 앱에 올려놓고 테스트 해볼 리스트  
-- 오디오 틀고 무음버튼 켜고,꺼보기
-- 오디오 틀고, 락스크린버튼 눌러보기
-아마 안들릴것임 > 그래서 오디오 세션에 대한 얘기를 좀 해야겠음   
-  
-모든 iOS앱은 기본 오디오 세션 제공(category: solo ambient)  
-- 사실 이것은 오디오 재생이 주목적인 앱에게는 적당하지 않음
+AVFoundation은 미디어의 메타데이터도 관리해줌
+- 따라서 AVFoundation과 함께라면 메타데이터 처리도 쉬움
+- 실제로, 메타데이터 처리를 쌩으로 할려면 좀 까다로움
 
-오디오세션이 한번 세팅이 되야 하기 때문에, appdelegate에서 세팅하겠다   
-- 이번 실습 앱은 주목적이 오디오재생이므로 
-    - 카테고리를 AVAudioSessionCategoryPlayback 로 세팅하겠음
-- setAction:error: 메소드를 이용해서 오디오세션을 activate 하겠음
+** Metadata Formats **
 
-이렇게 하고 다시 테스트   
-- 무음모드에서 재생시 > 통과
-- 락스크린 켜기 (백그라운드 재생) > 실패
-
-백그라운드에서 실행해주기 위해서는 Info.plist 에서 백그라운드모드를 세팅해주어야함   
+주요 4가지 미디어포맷
+- QuickTime(mov)
+- MPEG4-Video(mp4, m4v)
+- MPEG4-Audio(m4a)
+- MPEG Layer3(mp3)
 
 
+### Working with Metadata
+
+AVAsset, AVAssetTrack 모두 메타데이터에 대한 정보를 가져 올수있는 능력이 있음
+- AVAsset에서 제공해주는 메타데이터로 충분히 유용함
+- 그러나, 가끔 트랙래밸로 메타데이터를 보는것도 필요할때가 있음
+    - AVMetaDataItem이란 녀석을 통해 가져옴
+- AVAsset, AVAsset 은 두가지 방법으로 메타데이터 제공
+    - 이를 위해서 keyspaces란 것에대한 이해가 필요
+    - 모든 어셋은 적어도 2개의 keyspaces를 가지고 있음
+- Key spaces 다음의 영역이있음
+    - Common: title, artist 등
+    - Format: availableMetadataFormats 속성으로 가능한 포맷들을 모두 불르수 있음
+
+** Finding Metedata **
+메타데이타들을 받고 나서는, 이제 그에 해당하는 값을 찾아야 하는데…..
+- 이것은 AVMetadataItem 를 이용해서 검색 및 필터해서 가져올수 잇당
+
+** Using AVMetadataItem **
+AVMetaDataItem은 하나의 key-value페어의 래퍼이당 
+- 그래서 필요한 키값을 넣으면 값도 알수 있음
 
 
-### Handling Interruptions  
+### Building the MetaManager App
+이번 메타데이터 매니저앱은 AVFoundation이 지원하는 모든타입의 메타데이터 보여줌, 그리고 메타데이터 쓰는것까지…..(MP3는 쓰는건 안되는건 함정)
+AVFoundation이 많은부분에서 추상화 시켜주고 있긴하지만, 실제로 통일화된 방식으로 관리하기 어려움
+- 해결책이 필요함: 포맷 별 메타데이터를 일정하게 딕셔너리에 넣어서 관리하는 전략 채택
 
-오디오 앱의 디테일을 챙기는것중 중요한것 하나가 인터럽션 핸들링이다   
-iOS 자체는 이부분에서 OS입장에서 핸들링을 엄청잘하고 있지만, 앱의 디테일을 위해서는 우리가 직접 잘 처리해줘야함   
-
-인터럽션 핸들을 위해서는 테스트를 해야함  
-아래의 절차에 따라 테스트를 해보자  
-- 앱을 실행하고 재생시키자
-- 오디오가 재생되는 동안에, 전화나 페이스타임을 통해 인터럽션을 발생시켜보자
-- 거절 버튼을 이용해서 전화를 끊어 보자 
-
-위의 테스트를 제대로 수행한 경우, 현재 재생중인 오디오가 조용히 페이드아웃되고, 전화 거절이후에도 정지해 있는 모습을 볼수 있다. 
-- 전화 이후에는 다시 오디오가 재생해야할것 같은데,, 안됨  
-  
-
-### Audio Session Notifications  
-AVAudioSession 에게 AVAudioSessionInterruptionnotification을 등록하여 인터럽션 상황을 공지 받도록 설정함  
-- 이때 재생/정지 버튼 업데이트를 제대로 처리해야함  
+** THMediaItem **
+AVAsset 인스턴스의 래핑 모델
+AVAsset 의 메타데이터를 불러오는 기능포함
+AVFoundation은 ID3 태그의 정보를 읽어 올수 있지만, 쓸수는 없음…. mp3 라이센스 때문인가?.. 
+정보들은 한번만 가져오고, 상태를 prepared로 관리함
 
 
-AVAudioSessionInterrruptionTypeEnded의 노티가 오면, 
-- 오디오 세션이 다시 활성화되고, 다시 재생할수 있음을 얘기함
-
-### Responding to Route Changes
-
-한가지 마지막으로 오디오 앱에서 챙겨하는 것이 오디오 라우트 변경에 대응해야함  
-이것을 대응하기 위해 해보아야할 테스트  
-- 앱을 켜고 
-- 재생하고
-- 헤드폰을 껴보고
+** THMetadata Implementation **
+addMetadataItem메소드로 AVMetatatItem 형태로 저장시킴
+metadataItems 메소드로 모든 메타데이터 정보를 가져옴 
 
 
-원래 폰에서 키고 헤드폰 끼면 재생이 그대로 되어야함
-대신 헤드폰 뺐을때는 음악이 정지되어야함(그런데 지금은 그냥 틀어지고 있음) > HIG에서 이렇게 가이드하고 있음
+### Data Converter
+AVMetadataItem 을 쓰면서, 가장 힘든점은 value 속성을 이해하는 점임 
+- 단순한 string,  int는 괜찮은데 가끔 혼란스러운것들 나옴
+- 따라서 이런것을 잘 표현하려면 추가작업 해줘야함 
+    - 그래서 컨버터프로토콜을 만드는 전략을 채택 
+
+** Converting Artwork **
+아트웍: 앨범 커버, 무비포스터 등등
+
+** Converting Comments **
+미디어의 커멘트 뽑는거 아주 심플함(mp3는 추가작업 필요)
+
+** Converting Track Data **
+오디오 트랙은 일반적으로 트랙 모음내에서 노래의 순서 정보를 가지고 있음
+- 여기서는 오히려 mp3쉽고, m4a가 어려움(m4a추가작업 필요)
+
+** Converting Disc Data **
+CD에서 곡이 어느 디스크에 몇번째냐 정보를 얻어올때 쓰임
+
+** Converting Genre Data **
+이게 난리가 나는 작업중 하나임(빡셈)
+- 왜냐, 장르가 많고, 그냥 장르, 사용자 장르, 장르아이디, 음악장르 등 뭐 엄청 많음 
+이거 간소화를 위해 THGenre따로 만듬
+
+** Finalizing THMetadata **
+마무리하면서 해야할게 metadataItem 메소드만드는 것임
+- 이건 현재 보여주는 값들을 다 가져와서 AVMetadataItem으로 컨버팅해주는 것임
 
 
-AVAudioSessionRouteChangeNotification을 AVAudioSessoin에 등록해서 변경사항을 노티 받도록 함
-- 노티받으면 userInfo에서 AVAudioSessionRouteChangeReasonKey 를 통해서 변경사항을 알수가 있음 
+### Saving Metadata
 
-다시 한번 강조하면, 미디어 관련 앱 만들때에는 
-- 인터럽션 핸들링 
-- 라우터 변경 핸들링 
-꼭 해줘야함 
+앞에서 메타데이터 읽고 쓰기 배움
+AVAsset은 immutable인데 어떻게 쓸꺼임?
+- AVAsset은 직접 건드리지 않고 AVAssetExportSession 를 이용할거임
 
+** Using AVAssetExportSession **
+AVAssetExportSession 이것은 주어진 AVAsset의 컨텐츠를 설정한 preset 으로 transcode할때 씀
+- 이런기능들: 포맷변환, 컨텐츠자르기, 비디오 오디오 행동 수정, 새로 메타데이터 쓰기 등등
+AVAssetExportSession은 해당 소스의 asset과 export preset 을 이용해서 만듬요
+- outputURL을 설정해야 내보낼수 있음. 
+- 마지막으로 exportAsynchronouslyWithCompletionHandler: 메소드를 이용해서 export하기 
 
+** note(번역기가 설명해줌) **
+AVAssetExportPresetPassthrough 사전 설정은 특정 시나리오에서 유용 할 수 있으며 데모 응용 프로그램의 목적에 적합합니다. 그러나 제한 사항이 있음을 유의하십시오. MPEG-4 또는 QuickTime 컨테이너에서 기존 메타 데이터를 수정할 수 있지만 새 메타 데이터를 추가 할 수는 없습니다. 새 메타 데이터를 추가하는 유일한 방법은 트랜스 코딩 사전 설정 중 하나를 사용하는 것입니다. 또한 ID3 태그를 수정하는 데 사용할 수 없습니다. 프레임 워크는 MP3 데이터 작성을 지원하지 않기 때문에 데모 응용 프로그램의 MP3 파일은 읽기 전용이었습니다.
 
-### Audio Recording with AVAudioRecorder  
-
-오디오 플레이만큼 오디오 레코딩도 AVFounation과 함께라면 짱 쉬움  
-- AVAudioRecorder 를 이용하면됨
-
-### Creating an AVAudioRecorder  
-AVAudioRecorder는 3개의 데이터만 있으면 만들수 있음
-- 로컬URL(오디오음원이 기록될곳)
-- 레코딩 세션관련 configuration Dictionary
-- error포인터 (에러 발생시 이 error에다가 생성하게됨)  
-  
-AVAudioRecorder 객체를 만들고 나면, prepareToRecord메소드를 호출해주어야 미리 리소스 준비하게됨
-  
-
-### Audio Format 
-AVFormatIDKey는 어떤 형태의 오디오로 저장이 될지 결정해준다 
-아래의 형태로 저장가능
-- kAudioFormatLinearPCM
-- kAudioFormatMPEG4AAC
-- kAudioFormatAppleLossless
-- kAudioFormatAppleIMA4
-- kAudioFormatiLBC
-- kAudioFormatULaw
-
-### Sample Rate  
-AVSampleRateKey를 이용해서 레코딩 샘플링 레이트를 정함  
-    
-### Number of Channels  
-AVNumberOfChannelsKey를 이용해서 몇개의 오디오 채널을 사용할지 지정함
-  
-### Format-Specific Keys
-포맷의 추가적인 구체사항들을 정의 할수 있음  
-  
-### Controlling Recording 
-AvAudioRecorder는 아래의 리스트를 수행할 수 있는 메소드가 있음
-- 무한기간 녹음
-- 미래의 특정 지점에 녹음하기 
-- 특정 시간동안만 녹음하기 
-- 녹음을 일시 중지한후 다시 시작하기 
-
-
-### Building a Voice Memo App
-
-
-### Audio Session Configuration 
-
-레코딩을 위해서는 AudioSessionCategory 를 AVAudioSessionCategoryPlayAndRecord로 하여라  
-iOS7부터는 마이크 사용시 os에서 사용자로부터 퍼미션을 물어보도록 되어있다(앱에서 맘대로 오디오 못키게)  
-  
-
-### Recorder Implementation 
-THRecorderController 요런 클래스가 있음  
-- 레코딩 작업 관련 메소드들이 있음
-위 클래스는 AVAudioRecorderDelegate를 따르는데  
-- 레코딩끝날시 호출받는 메소드를 가지고 있음
-
-AVAudioRecorder는 currentTime 이라는 프로퍼티가 있음  
-- 이걸 이용해서 시간관련 피드백을 사용자에게 쉽게 줄수 있음
-- 레코딩 시간관련 업데이트 어떻게 시킬것인가?
-    - 그냥드는 생각은?  KVO를 통해서 currentTime이 바뀌는것을 옵저빙하면 되지 않을까?
-        - 근데 currentTime은 observable 하지 않아서 KVO방식 안되용
-    - KVO 대신 NSTimer를 이용해서 계속 업데이트 하는 방법을 써야함
-
-### Enabling Audio Metering 
-
-사용자에게 녹음시, 음성신호에 대한 시각적 피드백을 주는 것은 좋음
-- metering  을 이용하면 할수가 있음
-
-AVAudioRecorder랑 AVAudioPlayer 모두 오디오 metering을 할수가 있다. 짱!
-- Average 와 peak값을 모두 읽을 수 있음 (db레벨임)
-- averagePowerForChannler: , peak-PowerForChannel: 메소드를 이용하면 float값을 넘김(db레벨임)
-- (최소)-160 ~ 0(최대음)db까지
-- 이거 미터링 쓸라면, meteringEnabled 프로퍼티 켜야됨
-- 미터링 값 읽기 전에 updateMeters 메소드로 업데이트 하고 값 가져오기 
-
-NSTimer를 이용해서 매번 미터링을 업데이트 할수 있음
-- 좀더 정확하고 스무스 하게 미터링 업데이트를 일정시간동안 하려면 CADisplayLink를 이용해야함 
-- CADisplayLink 는 화면 fps에 맞추어서 업데이트 되기때문에 일정시간동안 업데이트 보장
-
-
+### Challenge
+미디어 라이브러리에서 노래나 비디오 복사떠보고,, 아이튠즈에서 한번 메타정보를 모두 넣어봐라?
+-> 이건 생략 
 
 
