@@ -5,7 +5,7 @@ AVFoundation 은 처음에 오디오 플랫폼으로 시작함(비디오 없었�
 - AVAudioPlayer, AVAudioRecorder 가 주로 쓰이는 클래스임(대신 조금 오래되긴 함)    
   
 
-    
+<br><br>    
 ### Mac and iOS Enviroments
 
 오디오 레코딩과 플레이백을 보기전에 Mac과 iOS 환경을 이해하는게 좋다   
@@ -17,6 +17,7 @@ iOS 환경에서 오디오 환경 시나리오.
 
 iOS 는 managed audio enviroment(audio session)를 제공함   
 
+<br><br>
 ### Understanding Audio Sessions  
 
 audio session은 앱과 iOS 간의 중간 매체라고 생각하면 됨 
@@ -29,7 +30,7 @@ audio session은 앱과 iOS 간의 중간 매체라고 생각하면 됨
     - 앱에서 음원 재생하면, 다른 재생중이던 음원은 음소거..
 기본 Audio session은 위와 같이 구성 되어 있지만, 각 앱에 맞게 오디오센션 행동에 대해 변경해줘야함(오디오를 이용하는 앱의 서비스의 경우). 
   
-  
+<br><br> 
 ### Audio Session Categories
 
 오디오 세션은 7가지 카테고리로 오디오 행동에 대해 구분해놓음
@@ -39,6 +40,7 @@ audio session은 앱과 iOS 간의 중간 매체라고 생각하면 됨
 추가적으로 advanced control을 하려면 ,option과 mode를 사용하면됨 
 - VoIP, 비디오챗 등이 이런걸 열심히 씀
 
+<br><br>
 ### Configuring an Audio Session
 
 audio session은 앱 생명주기동안 변경이 가능함 
@@ -46,6 +48,7 @@ audio session은 앱 생명주기동안 변경이 가능함
 - `application:didFinishLaunchingWithOptions:` 임
 `AVAudioSession` 클래스는 앱이랑 인터랙션할수 있는 인터페이스를 제공함 
 
+<br><br>
 ### Audio Playback with AVAudioPlayer
 
 AVAudioPlayer는  오디오 재생에 대해 쉽게 구현할수 있는 인터페이스 제공
@@ -53,7 +56,7 @@ AVAudioPlayer는 CoreAudio의 C기반 AudioQueue Service 위에 만들어진 녀
 다만 가정이
 - 네트웍, 초적은 지연시간, 원형 오디오데이터에 접근하지 않을때 사용하기 짱임
 
-
+<br><br>
 ### Creating an AVAudioPlayer
 AVAudioPlayer는 두가지 방법으로 구성할수 있는데 , 
 - 첫번째는 메모리에 있는 NSDatat로 
@@ -64,6 +67,7 @@ AVAudioPlayer를 URL 기반으로 구성시, 인스턴스 만들고 나서, prep
     - 미리 하드웨어 자원들을 받아놓음
     - 플레이 메소드 호출시 지연시간을 줄일수 있음
 
+<br><br>
 ### Controlling Playback
 
 AVAudioPlayer는 다음의 메소드가 있음  
@@ -78,7 +82,7 @@ AVAudioPlayer는 다음의 메소드가 있음
 - 반복 숫자 세팅을 이용해서 몇번이나 반복할지 정할수 있음 ( -1 세팅시 무한반복)
 - 오디오의 평균 파워값 및 최고 파워값을  얻어 올수 있음 
 
-
+<br><br>
 ### Building an Audio Looper  
 이번시간에는 오디오루핑 앱을 만듬
 - 3개의 플레이어를 동시에 재생하게 만드는 것임
@@ -92,7 +96,7 @@ loop count = -1 은 무한루프임
 - 정지
 - 플레이백 레이트 조율
 
-
+<br><br>
 ### Configuring the Audio Session  
 
 실제 앱에 올려놓고 테스트 해볼 리스트  
@@ -116,7 +120,7 @@ loop count = -1 은 무한루프임
 
 
 
-
+<br><br>
 ### Handling Interruptions  
 
 오디오 앱의 디테일을 챙기는것중 중요한것 하나가 인터럽션 핸들링이다   
@@ -131,7 +135,7 @@ iOS 자체는 이부분에서 OS입장에서 핸들링을 엄청잘하고 있지
 위의 테스트를 제대로 수행한 경우, 현재 재생중인 오디오가 조용히 페이드아웃되고, 전화 거절이후에도 정지해 있는 모습을 볼수 있다. 
 - 전화 이후에는 다시 오디오가 재생해야할것 같은데,, 안됨  
   
-
+<br><br>
 ### Audio Session Notifications  
 AVAudioSession 에게 AVAudioSessionInterruptionnotification을 등록하여 인터럽션 상황을 공지 받도록 설정함  
 - 이때 재생/정지 버튼 업데이트를 제대로 처리해야함  
@@ -140,6 +144,7 @@ AVAudioSession 에게 AVAudioSessionInterruptionnotification을 등록하여 인
 AVAudioSessionInterrruptionTypeEnded의 노티가 오면, 
 - 오디오 세션이 다시 활성화되고, 다시 재생할수 있음을 얘기함
 
+<br><br>
 ### Responding to Route Changes
 
 한가지 마지막으로 오디오 앱에서 챙겨하는 것이 오디오 라우트 변경에 대응해야함  
@@ -162,12 +167,13 @@ AVAudioSessionRouteChangeNotification을 AVAudioSessoin에 등록해서 변경�
 꼭 해줘야함 
 
 
-
+<br><br>
 ### Audio Recording with AVAudioRecorder  
 
 오디오 플레이만큼 오디오 레코딩도 AVFounation과 함께라면 짱 쉬움  
 - AVAudioRecorder 를 이용하면됨
 
+<br><br>
 ### Creating an AVAudioRecorder  
 AVAudioRecorder는 3개의 데이터만 있으면 만들수 있음
 - 로컬URL(오디오음원이 기록될곳)
@@ -176,7 +182,7 @@ AVAudioRecorder는 3개의 데이터만 있으면 만들수 있음
   
 AVAudioRecorder 객체를 만들고 나면, prepareToRecord메소드를 호출해주어야 미리 리소스 준비하게됨
   
-
+<br><br>
 ### Audio Format 
 AVFormatIDKey는 어떤 형태의 오디오로 저장이 될지 결정해준다 
 아래의 형태로 저장가능
@@ -203,7 +209,7 @@ AvAudioRecorder는 아래의 리스트를 수행할 수 있는 메소드가 있�
 - 특정 시간동안만 녹음하기 
 - 녹음을 일시 중지한후 다시 시작하기 
 
-
+<br><br>
 ### Building a Voice Memo App
 
 
