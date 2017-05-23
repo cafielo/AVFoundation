@@ -152,7 +152,7 @@ class ViewController: UIViewController {
         levelTimer?.invalidate()
         levelTimer = CADisplayLink(target: self, selector: #selector(updateMeter))
         levelTimer?.frameInterval = 5
-        levelTimer?.add(to: .current, forMode: .commonModes)
+        levelTimer?.add(to: RunLoop.current, forMode: .commonModes)
     }
     
     func stopMeterTimer () {
@@ -162,9 +162,12 @@ class ViewController: UIViewController {
     }
     
     func updateMeter () {
+        
         let levels = controller.levels()
         levelMeterView.level = CGFloat(levels?.level ?? 0)
         levelMeterView.peakLevel = CGFloat(levels?.peakLevel ?? 0)
+        
+        print("\(levels?.level), \(levels?.peakLevel)")
         levelMeterView.setNeedsDisplay()
     }
 

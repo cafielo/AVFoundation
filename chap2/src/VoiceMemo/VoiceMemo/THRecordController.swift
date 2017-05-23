@@ -90,6 +90,7 @@ class THRecordController: NSObject {
         do {
             try FileManager.default.copyItem(at: srcURL, to: destURL)
             completion(true, THMemo(title: name, url: destURL))
+            recorder?.prepareToRecord()
             print("--Success: Save memo ")
         } catch let error as NSError {
             print("--FAIL:  copy item ")
@@ -109,6 +110,8 @@ class THRecordController: NSObject {
         }
         let linearLevel = meterTable.valueForPower(power: avgPower)
         let linearPeak = meterTable.valueForPower(power: peakPower)
+        
+        print("--level:\(linearLevel) peak:\(linearPeak)")
         return THLevelPair(level: linearLevel, peakLevel: linearPeak)
     }
     
